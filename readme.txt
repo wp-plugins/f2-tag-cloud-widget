@@ -2,7 +2,7 @@
 Contributors: fsquared
 Tags: tags widget
 Requires at least: 2.8
-Tested up to: 3.3.2
+Tested up to: 3.4.1
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -44,3 +44,11 @@ None
 
 = 0.1.0 =
 Initial release
+
+= 0.2.0 =
+Added the ability to select different taxonomies.
+
+== Upgrade Notice ==
+
+= 0.2.0 =
+Adds the ability to render clouds for different taxonomies.
