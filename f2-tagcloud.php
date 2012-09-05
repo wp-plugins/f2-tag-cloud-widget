@@ -2,7 +2,7 @@
 /****************************************************************************\
 Plugin Name: F2 Tag Cloud Widget
 Plugin URI: http://www.fsquared.co.uk/software/f2-tagcloud/
-Version: 0.1.0
+Version: 0.2.0
 Author: fsquared limited
 Author URI: http://www.fsquared.co.uk
 Licence: GPL2
@@ -49,6 +49,7 @@ class F2_Tag_Cloud_Widget extends WP_Widget {
 		'format'     => 'flat',
 		'orderby'    => 'name',
 		'order'      => 'ASC',
+		'taxonomy'   => 'post_tag',
 		'exclude'    => null,
 		'include'    => null
 	);
@@ -81,7 +82,10 @@ class F2_Tag_Cloud_Widget extends WP_Widget {
 		if ( ! empty( $p_instance['title'] ) ) {
 			$l_title = $p_instance['title'];
 		} else {
+			$l_current_tax = get_taxonomy( 
+				$this->_get_current_taxonomy( $p_instance ) );
 			$l_title = __( 'Tags' );
+			$l_title = $l_current_tax->labels->name;
 		}
 		$title = apply_filters( 'widget_title', $title );
 
@@ -146,12 +150,10 @@ class F2_Tag_Cloud_Widget extends WP_Widget {
 			__( 'Tag cloud format:' ) . '</label>';
 		echo '<select class="widefat" id="' . $this->get_field_id( 'format' ) . 
 			'" name="' . $this->get_field_name( 'format' ) . '">';
-		echo '<option ';
-		if ( 'flat' == $l_instance['format'] ) { echo 'selected="selected"'; }
-		echo '>flat</option>';
-		echo '<option ';
-		if ( 'list' == $l_instance['format'] ) { echo 'selected="selected"'; }
-		echo '>list</option>';
+		echo '<option ' . selected( 'flat', $l_instance['format'], false ) .
+			' value="flat">flat</option>';
+		echo '<option ' . selected( 'list', $l_instance['format'],false ) .
+			' value="list">list</option>';
 		echo '</select>';
 		echo '</p>';
 
@@ -161,12 +163,10 @@ class F2_Tag_Cloud_Widget extends WP_Widget {
 		echo '<select class="widefat" id="' . 
 			$this->get_field_id( 'orderby' ) .  '" name="' . 
 			$this->get_field_name( 'orderby' ) . '">';
-		echo '<option ';
-		if ( 'name' == $l_instance['orderby'] ) { echo 'selected="selected"'; }
-		echo '>name</option>';
-		echo '<option ';
-		if ( 'count' == $l_instance['orderby'] ) { echo 'selected="selected"'; }
-		echo '>count</option>';
+		echo '<option ' . selected( 'name', $l_instance['orderby'], false ) .
+			' value="name">name</option>';
+		echo '<option ' . selected( 'count', $l_instance['orderby'], false ) .
+			' value="count">count</option>';
 		echo '</select>';
 		echo '</p>';
 
@@ -175,18 +175,33 @@ class F2_Tag_Cloud_Widget extends WP_Widget {
 			__( 'Tag order direction:' ) . '</label>';
 		echo '<select class="widefat" id="' . $this->get_field_id( 'order' ) . 
 			'" name="' . $this->get_field_name( 'order' ) . '">';
-		echo '<option ';
-		if ( 'ASC' == $l_instance['order'] ) { echo 'selected="selected"'; }
-		echo ' value="ASC">ascending</option>';
-		echo '<option ';
-		if ( 'DESC' == $l_instance['order'] ) { echo 'selected="selected"'; }
-		echo ' value="DESC">descending</option>';
-		echo '<option ';
-		if ( 'RAND' == $l_instance['order'] ) { echo 'selected="selected"'; }
-		echo ' value="RAND">random</option>';
+		echo '<option ' . selected( 'ASC', $l_instance['order'], false ) .
+			' value="ASC">ascending</option>';
+		echo '<option ' . selected( 'DESC', $l_instance['order'], false ) .
+			' value="DESC">descending</option>';
+		echo '<option ' . selected( 'RAND', $l_instance['order'], false ) .
+			' value="RAND">random</option>';
 		echo '</select>';
 		echo '</p>';
 
+		$l_current_tax = $this->_get_current_taxonomy( $p_instance );
+		echo '<p>';
+		echo '<label for="' . $this->get_field_id( 'taxonomy' ) . '">' .
+			__( 'Taxonomy:' ) . '</label>';
+		echo '<select class="widefat" id="' . 
+			$this->get_field_id( 'taxonomy' ) . '" name="' . 
+			$this->get_field_name( 'taxonomy' ) . '">';
+		foreach( get_taxonomies() as $l_taxonomy ) {
+			$l_tax = get_taxonomy( $l_taxonomy );
+			if ( !$l_tax->show_tagcloud || empty( $l_tax->labels->name ) ) {
+				continue;
+			}
+			echo '<option ' . selected( $l_taxonomy, $l_current_tax, false ) .
+				' value="' . esc_attr( $l_taxonomy ) . '">' .
+				$l_tax->labels->name . '</option>';
+		}
+		echo '</select>';
+		echo '</p>';
 	}
 
 	/************************************************************************\
@@ -248,6 +263,12 @@ class F2_Tag_Cloud_Widget extends WP_Widget {
 		} else {
 			$l_instance['order'] = $p_old_instance['order'];
 		}
+
+		if ( "" != 
+			get_taxonomy( stripslashes( $p_new_instance['taxonomy'] ) ) ) {
+			$l_instance['taxonomy'] = 
+				stripslashes( $p_new_instance['taxonomy'] );
+		}
 /*
 			'unit'       => 'pt',
 			'separator'  => "\n",
@@ -258,16 +279,22 @@ class F2_Tag_Cloud_Widget extends WP_Widget {
 		/* Return the freshly built list of options. */
 		return $l_instance;
 	}
-}
-/*
 
-		echo $before_widget;
-		if ( $title )
-			echo $before_title . $title . $after_title;
-		echo '<div class="tagcloud">';
-		wp_tag_cloud( apply_filters('widget_tag_cloud_args', array('taxonomy' => $current_taxonomy) ) );
-		echo "</div>\n";
-*/
+	/************************************************************************\
+	|* Fetch current taxonomy.                                              *|
+	\************************************************************************/
+	function _get_current_taxonomy( $p_instance ) {
+
+		/* Return the instance taxonomy if we have one. */
+		if ( !empty( $p_instance['taxonomy'] ) && 
+			 taxonomy_exists( $p_instance['taxonomy'] ) ) {
+			return $p_instance['taxonomy'];
+		}
+
+		/* Otherwise, return the default. */
+		return $this->m_defaults['taxonomy'];
+	}
+}
 
 /* Last step, add this widget into the init action. */
 add_action( 'widgets_init', create_function( '', 'register_widget( "F2_Tag_Cloud_Widget" );' ) );
