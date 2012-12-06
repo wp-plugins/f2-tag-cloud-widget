@@ -2,7 +2,7 @@
 Contributors: fsquared
 Tags: tags widget
 Requires at least: 2.8
-Tested up to: 3.4.1
+Tested up to: 3.4.2
 Stable tag: trunk
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
@@ -26,6 +26,12 @@ These are all options provided by the tag cloud functions within WordPress,
 but for some reason are not exposed by their own widget. The full details 
 of these options are explained in the main WordPress documentation.
 
+In addition, there are additional options now available to control the
+typography of tags with greater precision.
+
+* tag cloud alignment - left, center, right or theme default (default)
+* tag padding - defaults to 0
+
 == Installation ==
 
 1. Upload the `f2-tagcloud` folder to the `/wp-content/plugins` directory
@@ -48,7 +54,14 @@ Initial release
 = 0.2.0 =
 Added the ability to select different taxonomies.
 
+= 0.3.0 =
+Added new options, to set padding between individual tags, and also to set
+the horizontal alignment of the tags within the cloud.
+
 == Upgrade Notice ==
 
 = 0.2.0 =
 Adds the ability to render clouds for different taxonomies.
+
+= 0.3.0 =
+Adds the ability to set padding and alignment of tags.

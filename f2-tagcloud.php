@@ -2,7 +2,7 @@
 /****************************************************************************\
 Plugin Name: F2 Tag Cloud Widget
 Plugin URI: http://www.fsquared.co.uk/software/f2-tagcloud/
-Version: 0.2.0
+Version: 0.3.0
 Author: fsquared limited
 Author URI: http://www.fsquared.co.uk
 Licence: GPL2
@@ -49,6 +49,8 @@ class F2_Tag_Cloud_Widget extends WP_Widget {
 		'format'     => 'flat',
 		'orderby'    => 'name',
 		'order'      => 'ASC',
+		'alignment'  => 'default',
+		'padding'    => '0',
 		'taxonomy'   => 'post_tag',
 		'exclude'    => null,
 		'include'    => null
@@ -94,9 +96,17 @@ class F2_Tag_Cloud_Widget extends WP_Widget {
 		echo $l_args_before_title . $l_title . $l_args_after_title;
 
 		/* The actual content. */
-		echo '<div class="tagcloud">';
 		$l_tag_params = wp_parse_args( $p_instance, $this->m_defaults );
-		wp_tag_cloud( apply_filters('widget_tag_cloud_args', $l_tag_params ) );
+		$l_tag_params["echo"] = 0;
+		$l_tag_cloud_text = wp_tag_cloud( apply_filters('widget_tag_cloud_args', $l_tag_params ) );
+
+		echo '<div class="tagcloud"';
+		if ( 'default' != $l_tag_params["alignment"] ) {
+			echo ' style="text-align: ' . $l_tag_params["alignment"] . ';"';
+		}
+		echo '>';
+		echo preg_replace( '/style=\'/', 'style=\'padding: ' . 
+			$l_tag_params["padding"] . 'px; ', $l_tag_cloud_text );
 		echo '</div>';
 
 		/* And then the footer. */
@@ -184,6 +194,30 @@ class F2_Tag_Cloud_Widget extends WP_Widget {
 		echo '</select>';
 		echo '</p>';
 
+		echo '<p>';
+		echo '<label for="' . $this->get_field_id( 'alignment' ) . '">' .
+			__( 'Tag cloud alignment:' ) . '</label>';
+		echo '<select class="widefat" id="' . $this->get_field_id( 'alignment' ) . 
+			'" name="' . $this->get_field_name( 'alignment' ) . '">';
+		echo '<option ' . selected( 'default', $l_instance['alignment'], false ) .
+			' value="default">theme default</option>';
+		echo '<option ' . selected( 'left', $l_instance['alignment'], false ) .
+			' value="left">left</option>';
+		echo '<option ' . selected( 'center', $l_instance['alignment'], false ) .
+			' value="center">center</option>';
+		echo '<option ' . selected( 'right', $l_instance['alignment'], false ) .
+			' value="right">right</option>';
+		echo '</select>';
+		echo '</p>';
+
+		echo '<p>';
+		echo '<label for="' . $this->get_field_id( 'padding' ) . '">' .
+			__( 'Padding between tags:' ) . '</label>';
+		echo '<input class="widefat" id="' . $this->get_field_id( 'padding' ) .
+			'" name="' . $this->get_field_name( 'padding' ) . '" type="text" ' .
+			'value="' . esc_attr( $l_instance['padding'] ) . '" />';
+		echo '</p>';
+
 		$l_current_tax = $this->_get_current_taxonomy( $p_instance );
 		echo '<p>';
 		echo '<label for="' . $this->get_field_id( 'taxonomy' ) . '">' .
@@ -262,6 +296,26 @@ class F2_Tag_Cloud_Widget extends WP_Widget {
 			$l_instance['order'] = 'RAND';
 		} else {
 			$l_instance['order'] = $p_old_instance['order'];
+		}
+
+		if ( 'default' == $p_new_instance['alignment'] ) {
+			$l_instance['default'] = 'default';
+		} else if ( 'left' == $p_new_instance['alignment'] ) {
+			$l_instance['alignment'] = 'left';
+		} else if ( 'center' == $p_new_instance['alignment'] ) {
+			$l_instance['alignment'] = 'center';
+		} else if ( 'right' == $p_new_instance['alignment'] ) {
+			$l_instance['alignment'] = 'right';
+		} else {
+			$l_instance['alignment'] = $p_old_instance['alignment'];
+		}
+
+		if ( is_numeric( $p_new_instance['padding'] ) ) {
+			/* Force it to be a number. */
+			$l_instance['padding'] = $p_new_instance['padding'] + 0;
+		} else {
+			/* Return to the original value. */
+			$l_instance['padding'] = $p_old_instance['padding'] + 0;
 		}
 
 		if ( "" != 
