@@ -2,7 +2,7 @@
 /****************************************************************************\
 Plugin Name: F2 Tag Cloud Widget
 Plugin URI: http://www.fsquared.co.uk/software/f2-tagcloud/
-Version: 0.3.0
+Version: 0.3.1
 Author: fsquared limited
 Author URI: http://www.fsquared.co.uk
 Licence: GPL2
@@ -89,7 +89,7 @@ class F2_Tag_Cloud_Widget extends WP_Widget {
 			$l_title = __( 'Tags' );
 			$l_title = $l_current_tax->labels->name;
 		}
-		$title = apply_filters( 'widget_title', $title );
+		$l_title = apply_filters( 'widget_title', $l_title );
 
 		/* And then generate the actual output - header first. */
 		echo $l_args_before_widget;

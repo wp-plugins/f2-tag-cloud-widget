@@ -58,6 +58,9 @@ Added the ability to select different taxonomies.
 Added new options, to set padding between individual tags, and also to set
 the horizontal alignment of the tags within the cloud.
 
+= 0.3.1 =
+Minor bug fix for a mis-applied filter - many thanks to Luca for spotting it!
+
 == Upgrade Notice ==
 
 = 0.2.0 =
@@ -65,3 +68,6 @@ Adds the ability to render clouds for different taxonomies.
 
 = 0.3.0 =
 Adds the ability to set padding and alignment of tags.
+
+= 0.3.1 =
+Minor bug fix for a mis-applied filter.
