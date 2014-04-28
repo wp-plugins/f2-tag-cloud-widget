@@ -100,11 +100,14 @@ class F2_Tag_Cloud_Widget extends WP_Widget {
 		$l_tag_params["echo"] = 0;
 		$l_tag_cloud_text = wp_tag_cloud( apply_filters('widget_tag_cloud_args', $l_tag_params ) );
 
+		/* Render the tagcloud, applying alignment if required. */
 		echo '<div class="tagcloud"';
 		if ( 'default' != $l_tag_params["alignment"] ) {
 			echo ' style="text-align: ' . $l_tag_params["alignment"] . ';"';
 		}
 		echo '>';
+
+		/* Output the tagcloud, adding in any padding requirements. */
 		echo preg_replace( '/style=\'/', 'style=\'padding: ' . 
 			$l_tag_params["padding"] . 'px; ', $l_tag_cloud_text );
 		echo '</div>';
